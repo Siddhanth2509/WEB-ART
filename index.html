@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluxora — Technology Crafted for All, Not Machines</title>
+  <meta name="description" content="Fluxora is a premium creative agency designing intuitive, accessible digital experiences shaped by real human behavior.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@1,400;1,600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Cursor Follower Ambient Glow -->
+  <div class="cursor-glow" id="cursor-glow"></div>
+
+  <!-- Header / Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="7" height="7" rx="1.5" fill="var(--neon-orange)" />
+          <rect x="14" y="3" width="7" height="7" rx="1.5" fill="var(--neon-orange)" opacity="0.6" />
+          <rect x="3" y="14" width="7" height="7" rx="1.5" fill="var(--neon-orange)" opacity="0.6" />
+          <rect x="14" y="14" width="7" height="7" rx="1.5" fill="var(--neon-orange)" />
+        </svg>
+        <span>Fluxora</span>
+      </a>
+      
+      <nav class="nav-menu">
+        <a href="#features">Features</a>
+        <a href="#process">How It Works</a>
+        <a href="#about">About</a>
+        <a href="#testimonials">Blogs</a>
+      </nav>
+      
+      <div class="nav-actions">
+        <a href="#contact" class="btn btn-outline btn-sm">Get Started</a>
+      </div>
+      
+      <button class="mobile-menu-toggle" aria-label="Toggle Menu">
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section" id="hero">
+      <div class="section-container hero-container">
+        
+        <div class="hero-content">
+          <div class="badge-pill hero-badge">
+            <span class="pulse-dot"></span>
+            Hub supporting people from all over the world
+          </div>
+          
+          <h1 class="hero-title">
+            Technology Crafted for All <br>
+            <span class="serif-italic">Not Machines</span>
+          </h1>
+          
+          <p class="hero-description">
+            We create clear, intuitive, and accessible digital experiences shaped by real human behavior.
+          </p>
+          
+          <div class="hero-cta-group">
+            <a href="#contact" class="btn btn-primary">
+              Get started 
+              <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            
+            <div class="client-avatars">
+              <div class="avatar-stack">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" alt="Client 1">
+                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" alt="Client 2">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80" alt="Client 3">
+              </div>
+              <span class="avatar-label">900+ Happy Clients</span>
+            </div>
+          </div>
+          
+          <div class="hero-stats-row">
+            <div class="stat-box card-glow-wrapper">
+              <div class="card-glow-bg"></div>
+              <h3>150+</h3>
+              <p>Projects delivered</p>
+            </div>
+            <div class="stat-box card-glow-wrapper">
+              <div class="card-glow-bg"></div>
+              <h3>98%</h3>
+              <p>Client satisfaction</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="hero-visual">
+          <div class="visual-wrapper">
+            <div class="ambient-orange-glow"></div>
+            <!-- Three.js WebGL 3D Scene -->
+            <canvas id="hero-canvas"></canvas>
+            <!-- Floating Status Cards -->
+            <div class="floating-tech-card tech-card-1">
+              <span class="tech-icon">✦</span>
+              <span class="tech-txt">3D / WebGL</span>
+            </div>
+            <div class="floating-tech-card tech-card-2">
+              <span class="tech-icon">⚙</span>
+              <span class="tech-txt">60 FPS</span>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      <!-- Partners Row -->
+      <div class="partners-row">
+        <div class="partners-container">
+          <span class="partners-label">Our Partners</span>
+          <div class="partners-logos">
+            <span class="partner-logo">BookStore</span>
+            <span class="partner-logo">zantic</span>
+            <span class="partner-logo">Crona</span>
+            <span class="partner-logo">Mercury</span>
+            <span class="partner-logo">Wager</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bento Grid Section (Services) -->
+    <section class="services-section" id="features">
+      <div class="section-container">
+        
+        <div class="section-header">
+          <div class="badge-pill">Why choose us</div>
+          <h2 class="section-title">Design With Purpose.<br>Build With Impact.</h2>
+        </div>
+        
+        <div class="bento-grid">
+          
+          <!-- Card 1: Large -->
+          <div class="bento-card bento-card-lg card-glow-wrapper">
+            <div class="card-glow-bg"></div>
+            <div class="bento-card-content">
+              <span class="card-index">01</span>
+              <h3>Seamless Digital Integration</h3>
+              <p>We hook into your active technical ecosystem and align styling tokens to deploy user experiences at speed.</p>
+              
+              <!-- Integrated graphic (Mock network/waves) -->
+              <div class="mock-chart-container">
+                <svg viewBox="0 0 400 120" width="100%" height="100%">
+                  <path d="M10 80 Q 90 20, 180 90 T 360 40" fill="none" stroke="var(--neon-orange)" stroke-width="3" />
+                  <path d="M10 100 Q 80 40, 160 80 T 360 60" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.5" />
+                  <circle cx="180" cy="90" r="6" fill="#ffffff" stroke="var(--neon-orange)" stroke-width="2" />
+                  <circle cx="360" cy="40" r="6" fill="var(--neon-orange)" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card 2: Medium -->
+          <div class="bento-card bento-card-md card-glow-wrapper">
+            <div class="card-glow-bg"></div>
+            <div class="bento-card-content">
+              <span class="card-index">02</span>
+              <h3>Human-Centered Experiences</h3>
+              <p>Designs backed by analytics and user behavior. We construct layouts around clean user journeys.</p>
+              
+              <!-- Review rating badge inside card -->
+              <div class="bento-badge-box">
+                <div class="bento-rating">
+                  <span class="rating-number">4.9</span>
+                  <div class="rating-stars">★★★★★</div>
+                </div>
+                <p class="rating-sub">Trusted by top-tier global creators</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Card 3: Small -->
+          <div class="bento-card bento-card-sm card-glow-wrapper">
+            <div class="card-glow-bg"></div>
+            <div class="bento-card-content">
+              <span class="card-index">03</span>
+              <h3>Collaborative Teams</h3>
+              <p>Transparent communication is baked into our workflow pipelines. No guesswork.</p>
+            </div>
+          </div>
+          
+          <!-- Card 4: Small -->
+          <div class="bento-card bento-card-sm card-glow-wrapper">
+            <div class="card-glow-bg"></div>
+            <div class="bento-card-content">
+              <span class="card-index">04</span>
+              <h3>Human-Centered Support</h3>
+              <p>Always available developers to support scaling issues and perform performance upgrades.</p>
+            </div>
+          </div>
+          
+          <!-- Card 5: Medium (CTA Card) -->
+          <div class="bento-card bento-card-md bento-card-cta">
+            <div class="bento-card-content">
+              <h3>Start your next digital experience</h3>
+              <p>Let's map out your project details and design a layout tailored specifically to your branding goals.</p>
+              <a href="#contact" class="btn btn-outline btn-block">Start a Project</a>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
+    <!-- Work Process Section -->
+    <section class="process-section" id="process">
+      <div class="section-container">
+        
+        <div class="section-header">
+          <div class="badge-pill">Our workflow</div>
+          <h2 class="section-title">A Simple, Human-Centered<br>Way To Work</h2>
+        </div>
+        
+        <div class="process-interactive">
+          <div class="process-nav">
+            <button class="process-step-btn active" data-step="discovery">
+              <span class="step-num">01</span>
+              <span class="step-label">Discovery & Research</span>
+            </button>
+            <button class="process-step-btn" data-step="design">
+              <span class="step-num">02</span>
+              <span class="step-label">Design & Build</span>
+            </button>
+            <button class="process-step-btn" data-step="optimize">
+              <span class="step-num">03</span>
+              <span class="step-label">Launch & Optimize</span>
+            </button>
+          </div>
+          
+          <div class="process-content-display">
+            <!-- Step 1 Content -->
+            <div class="step-pane active" id="pane-discovery">
+              <div class="pane-text">
+                <h3>Understanding Goals & Users</h3>
+                <p>We start by diving deep into your brand audits, performing target demographic user research, and outlining core usability requirements. This eliminates early architecture design mistakes.</p>
+                <div class="tags-container">
+                  <span class="tag">User Research</span>
+                  <span class="tag">Brand Audits</span>
+                  <span class="tag">Strategy Mapping</span>
+                  <span class="tag">Information Architecture</span>
+                </div>
+              </div>
+              <div class="pane-visual">
+                <svg class="pane-svg" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Search / Discovery Graphic -->
+                  <circle cx="130" cy="90" r="45" stroke="var(--neon-orange)" stroke-width="3" opacity="0.8"/>
+                  <line x1="162" y1="122" x2="200" y2="160" stroke="var(--neon-orange)" stroke-width="4" stroke-linecap="round"/>
+                  <circle cx="130" cy="90" r="25" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+                  <path d="M90 90 H170 M130 50 V130" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-dasharray="4 4" />
+                </svg>
+              </div>
+            </div>
+            
+            <!-- Step 2 Content -->
+            <div class="step-pane" id="pane-design">
+              <div class="pane-text">
+                <h3>Crafting & Prototyping</h3>
+                <p>We transition into high-fidelity UI/UX layouts, wireframes, interactive prototypes, and design systems. We focus on curated typography, glassmorphism card layouts, and custom interactions.</p>
+                <div class="tags-container">
+                  <span class="tag">UI/UX Design</span>
+                  <span class="tag">Design Systems</span>
+                  <span class="tag">Framer Prototypes</span>
+                  <span class="tag">CSS Layout Tokens</span>
+                </div>
+              </div>
+              <div class="pane-visual">
+                <svg class="pane-svg" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Edit / Wireframe Graphic -->
+                  <rect x="50" y="40" width="200" height="120" rx="8" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+                  <rect x="70" y="60" width="70" height="80" rx="4" fill="rgba(255, 69, 0, 0.15)" stroke="var(--neon-orange)" stroke-width="1.5"/>
+                  <line x1="160" y1="70" x2="220" y2="70" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="160" y1="90" x2="200" y2="90" stroke="rgba(255,255,255,0.4)" stroke-width="2" stroke-linecap="round"/>
+                  <circle cx="170" cy="125" r="10" stroke="var(--neon-orange)" stroke-width="2"/>
+                  <circle cx="205" cy="125" r="10" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                </svg>
+              </div>
+            </div>
+            
+            <!-- Step 3 Content -->
+            <div class="step-pane" id="pane-optimize">
+              <div class="pane-text">
+                <h3>Testing & Deployment</h3>
+                <p>Deploying cleanly using modern web standards. We inspect responsive layout shifts, execute speed benchmarks, optimize page loading sequences, and maintain robust performance levels.</p>
+                <div class="tags-container">
+                  <span class="tag">Speed Optimization</span>
+                  <span class="tag">A11y Checklists</span>
+                  <span class="tag">Lighthouse Testing</span>
+                  <span class="tag">Dynamic Analytics</span>
+                </div>
+              </div>
+              <div class="pane-visual">
+                <svg class="pane-svg" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Chart / Metrics Graphic -->
+                  <path d="M50 150 L100 110 L150 130 L210 70 L260 90" stroke="rgba(255,255,255,0.1)" stroke-width="2"/>
+                  <path d="M50 140 L100 90 L150 100 L210 50 L260 30" stroke="var(--neon-orange)" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="210" cy="50" r="5" fill="#ffffff" stroke="var(--neon-orange)" stroke-width="2"/>
+                  <circle cx="260" cy="30" r="5" fill="var(--neon-orange)"/>
+                </svg>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section" id="testimonials">
+      <div class="section-container">
+        
+        <div class="section-header text-center">
+          <div class="badge-pill">Feedback</div>
+          <h2 class="section-title">What Our Clients Say</h2>
+        </div>
+        
+        <div class="testimonial-slider">
+          <div class="testimonial-card">
+            <div class="quote-icon">“</div>
+            <p class="testimonial-text">
+              The process felt clear and collaborative from start to finish. Antigravity completely elevated our digital layout guidelines and built an interactive system that operates beautifully across mobile.
+            </p>
+            <div class="testimonial-author">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=80&q=80" alt="Alex Chen">
+              <div class="author-info">
+                <h4>Alex Chen</h4>
+                <p>Project Director, Tech-Vision</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+    </section>
+
+    <!-- Contact & Footer Call-To-Action (Arc Design) -->
+    <section class="footer-cta-section" id="contact">
+      
+      <!-- Top Glowing Border Arc -->
+      <div class="arc-container arc-top">
+        <svg viewBox="0 0 1440 200" preserveAspectRatio="none" class="arc-svg">
+          <path d="M0,150 Q720,0 1440,150" fill="none" stroke="url(#arc-grad-top)" stroke-width="6" filter="url(#arc-blur)"/>
+          <defs>
+            <linearGradient id="arc-grad-top" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ff4500" stop-opacity="0.1"/>
+              <stop offset="50%" stop-color="#ff7a00" stop-opacity="1"/>
+              <stop offset="100%" stop-color="#ff4500" stop-opacity="0.1"/>
+            </linearGradient>
+            <filter id="arc-blur">
+              <feGaussianBlur stdDeviation="8" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+        </svg>
+      </div>
+      
+      <div class="footer-cta-content text-center">
+        <h2>Let's Turn Ideas<br>Into Experiences</h2>
+        <a href="mailto:hello@fluxora.studio" class="btn btn-primary btn-lg">Get started now</a>
+      </div>
+
+      <!-- Bottom Glowing Border Arc -->
+      <div class="arc-container arc-bottom">
+        <svg viewBox="0 0 1440 200" preserveAspectRatio="none" class="arc-svg">
+          <path d="M0,50 Q720,200 1440,50" fill="none" stroke="url(#arc-grad-bottom)" stroke-width="6" filter="url(#arc-blur)"/>
+          <defs>
+            <linearGradient id="arc-grad-bottom" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ff4500" stop-opacity="0.1"/>
+              <stop offset="50%" stop-color="#ff7a00" stop-opacity="1"/>
+              <stop offset="100%" stop-color="#ff4500" stop-opacity="0.1"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- Footer Link Details -->
+  <footer class="main-footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="7" height="7" rx="1.5" fill="var(--neon-orange)" />
+            <rect x="14" y="3" width="7" height="7" rx="1.5" fill="var(--neon-orange)" opacity="0.6" />
+            <rect x="3" y="14" width="7" height="7" rx="1.5" fill="var(--neon-orange)" opacity="0.6" />
+            <rect x="14" y="14" width="7" height="7" rx="1.5" fill="var(--neon-orange)" />
+          </svg>
+          <span>Fluxora</span>
+        </a>
+        <p>Human-centered creative digital agency crafting clean, thoughtful, and meaningful digital experiences.</p>
+      </div>
+      
+      <div class="footer-links-col">
+        <h4>Explore</h4>
+        <a href="#features">Features</a>
+        <a href="#process">Process</a>
+        <a href="#testimonials">Testimonials</a>
+      </div>
+
+      <div class="footer-links-col">
+        <h4>Follow</h4>
+        <a href="#">Instagram</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">Behance</a>
+      </div>
+
+      <div class="footer-links-col">
+        <h4>Contact</h4>
+        <a href="mailto:hello@fluxora.studio">hello@fluxora.studio</a>
+        <p class="text-muted">Jakarta, Indonesia</p>
+      </div>
+    </div>
+    
+    <div class="footer-copyright">
+      <p>&copy; 2026 Fluxora. Built with Antigravity. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Three.js 3D Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- GSAP Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  
+  <!-- Interactive Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
