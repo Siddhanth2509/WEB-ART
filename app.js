@@ -30,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   splitChars(document.querySelector('.hero-title'));
 
-
   // ─── 2. CURSOR GLOW ──────────────────────────────────────────────────────────
   const cg = document.getElementById('cursor-glow');
   if (cg) {
@@ -42,7 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('mouseleave', () => cg.style.opacity = '0');
   }
 
-
   // ─── 3. BENTO CARD HOVER GLOW ────────────────────────────────────────────────
   document.querySelectorAll('.card-glow-wrapper').forEach(card => {
     const glow = card.querySelector('.card-glow-bg');
@@ -53,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
       glow.style.top  = (e.clientY - r.top)  + 'px';
     });
   });
-
 
   // ─── 4. WORKFLOW TABS ─────────────────────────────────────────────────────────
   document.querySelectorAll('.process-step-btn').forEach(btn => {
@@ -68,204 +65,184 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  // ─── 5. THREE.JS PREMIUM 3D HERO ─────────────────────────────────────────────
-  (function initThreeJS() {
-    if (typeof THREE === 'undefined') return;
-
+  // ─── 5. PROCEDURAL 3D TORUS — PURE 2D CANVAS ─────────────────────────────────
+  (function initProceduralTorus() {
     const canvas  = document.getElementById('hero-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     const wrapper = canvas.parentElement;
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({
-      canvas, antialias: true, alpha: true, powerPreference: 'high-performance'
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
-    renderer.toneMapping       = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
-
-    // Scene & Camera
-    const scene  = new THREE.Scene();
-    scene.fog    = new THREE.FogExp2(0x000000, 0.035);
-
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    camera.position.set(0, 0, 7);
-
-    // Resize
-    function resize() {
-      const w = wrapper.clientWidth;
-      const h = wrapper.clientHeight;
-      renderer.setSize(w, h);
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
+    // Set internal resolution
+    function resizeCanvas() {
+      canvas.width  = wrapper.clientWidth  || 560;
+      canvas.height = wrapper.clientHeight || 560;
     }
-    resize();
-    window.addEventListener('resize', resize);
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-    // ── Lighting ──────────────────────────────────────────────────────────────
-    scene.add(new THREE.AmbientLight(0x1a0800, 1.5));  // very dark orange ambient
+    // ── Build torus point cloud ───────────────────────────────────────────────
+    const R = 160;          // Major radius (distance from center to tube center)
+    const r = 60;           // Minor radius (tube thickness)
+    const pSeg = 120;       // Segments around the big ring
+    const qSeg = 60;        // Segments around the tube
+    const torusPoints = [];
 
-    // Key light — bright neon orange
-    const keyLight = new THREE.PointLight(0xff4c00, 8, 22);
-    keyLight.position.set(4, 3, 5);
-    scene.add(keyLight);
-
-    // Fill light — amber/golden orange
-    const fillLight = new THREE.PointLight(0xff8800, 4, 18);
-    fillLight.position.set(-4, -2, 3);
-    scene.add(fillLight);
-
-    // Rim light — deep orange-red
-    const rimLight = new THREE.PointLight(0xff2200, 5, 15);
-    rimLight.position.set(0, 4, -5);
-    scene.add(rimLight);
-
-    // ── Main 3D Object: Torus Knot (complex, premium-looking) ─────────────────
-    const knotGeo = new THREE.TorusKnotGeometry(1.6, 0.5, 200, 32, 3, 5);
-    const knotMat = new THREE.MeshPhysicalMaterial({
-      color:              0x1a0800,        // very dark burnt orange base
-      metalness:          1.0,
-      roughness:          0.08,
-      envMapIntensity:    1.5,
-      clearcoat:          1.0,
-      clearcoatRoughness: 0.05,
-      reflectivity:       1.0,
-      emissive:           new THREE.Color(0xff4c00),
-      emissiveIntensity:  0.12,
-    });
-    const knot = new THREE.Mesh(knotGeo, knotMat);
-
-    // Wireframe shell (outer)
-    const wireMat = new THREE.MeshBasicMaterial({
-      color: 0xff4c00,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.14,
-    });
-    const wireKnot = new THREE.Mesh(
-      new THREE.TorusKnotGeometry(1.62, 0.52, 80, 16, 3, 5),
-      wireMat
-    );
-
-    // Group them together
-    const group = new THREE.Group();
-    group.add(knot);
-    group.add(wireKnot);
-    group.rotation.x = 0.4;
-    scene.add(group);
-
-    // ── Floating Particle Dust (subtle, not main feature) ────────────────────
-    const particleCount = 600;
-    const pPositions = new Float32Array(particleCount * 3);
-    for (let i = 0; i < particleCount * 3; i++) {
-      pPositions[i] = (Math.random() - 0.5) * 14;
+    for (let i = 0; i < pSeg; i++) {
+      for (let j = 0; j < qSeg; j++) {
+        const u = (i / pSeg) * Math.PI * 2;
+        const v = (j / qSeg) * Math.PI * 2;
+        torusPoints.push({
+          x: (R + r * Math.cos(v)) * Math.cos(u),
+          y: (R + r * Math.cos(v)) * Math.sin(u),
+          z: r * Math.sin(v),
+          u: i,
+          v: j,
+        });
+      }
     }
-    const pGeo = new THREE.BufferGeometry();
-    pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
-    const pMat = new THREE.PointsMaterial({
-      color: 0xff6600,
-      size: 0.018,
-      transparent: true,
-      opacity: 0.5,
-      sizeAttenuation: true,
-    });
-    scene.add(new THREE.Points(pGeo, pMat));
 
-    // ── Mouse Interaction ─────────────────────────────────────────────────────
+    // ── Mouse & scroll state ──────────────────────────────────────────────────
     let mouseX = 0, mouseY = 0;
-    let targetRotX = 0, targetRotY = 0;
+    let targetX = 0, targetY = 0;
+    let scrollProgress = 0;
 
     document.addEventListener('mousemove', e => {
-      mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
-      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+      const rect = canvas.getBoundingClientRect();
+      mouseX = ((e.clientX - rect.left) / rect.width  - 0.5) * 2;
+      mouseY = ((e.clientY - rect.top)  / rect.height - 0.5) * 2;
     });
 
-    // ── Drag Rotation ─────────────────────────────────────────────────────────
-    let isDragging = false;
-    let prevMX = 0, prevMY = 0;
-    let dragVX = 0, dragVY = 0;
+    window.addEventListener('scroll', () => {
+      const heroEl  = document.querySelector('.hero-section');
+      if (!heroEl) return;
+      const heroH   = heroEl.offsetHeight;
+      scrollProgress = Math.min(Math.max(window.scrollY / heroH, 0), 1);
+    });
 
-    canvas.addEventListener('mousedown', e => {
-      isDragging = true;
-      prevMX = e.clientX;
-      prevMY = e.clientY;
-      canvas.style.cursor = 'grabbing';
-    });
-    window.addEventListener('mouseup', () => {
-      isDragging = false;
-      canvas.style.cursor = 'grab';
-    });
-    canvas.addEventListener('mousemove', e => {
-      if (!isDragging) return;
-      dragVX += (e.clientY - prevMY) * 0.01;
-      dragVY += (e.clientX - prevMX) * 0.01;
-      prevMX = e.clientX;
-      prevMY = e.clientY;
-    });
-    canvas.style.cursor = 'grab';
-
-    // ── Scroll-linked movement (GSAP) ─────────────────────────────────────────
-    let scrollProgress = 0;
-    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-      gsap.registerPlugin(ScrollTrigger);
-      ScrollTrigger.create({
-        trigger: '.hero-section',
-        start: 'top top',
-        end: 'bottom top',
-        onUpdate: self => { scrollProgress = self.progress; }
-      });
-    } else {
-      document.addEventListener('scroll', () => {
-        const heroH = document.querySelector('.hero-section').offsetHeight;
-        scrollProgress = Math.min(window.scrollY / heroH, 1);
-      });
+    // ── 3D Rotation helpers ───────────────────────────────────────────────────
+    function rotateX(p, cos, sin) {
+      return { x: p.x, y: p.y * cos - p.z * sin, z: p.y * sin + p.z * cos };
+    }
+    function rotateY(p, cos, sin) {
+      return { x: p.x * cos + p.z * sin, y: p.y, z: -p.x * sin + p.z * cos };
     }
 
-    // ── Animation Loop ────────────────────────────────────────────────────────
-    const clock = new THREE.Clock();
-    function animate() {
-      requestAnimationFrame(animate);
-      const t = clock.getElapsedTime();
+    // ── Render one frame ──────────────────────────────────────────────────────
+    function render(time) {
+      const W = canvas.width;
+      const H = canvas.height;
+      const CX = W / 2;
+      const CY = H / 2;
 
-      // Smooth mouse tilt
-      targetRotX += (mouseY * 0.3 - targetRotX) * 0.04;
-      targetRotY += (mouseX * 0.5 - targetRotY) * 0.04;
+      // Smooth mouse follow
+      targetX += (mouseX - targetX) * 0.04;
+      targetY += (mouseY - targetY) * 0.04;
 
-      // Drag inertia
-      if (!isDragging) {
-        dragVX *= 0.93;
-        dragVY *= 0.93;
+      const t  = time * 0.001;
+      const sp = scrollProgress;
+
+      // Rotation angles: auto-spin + mouse tilt + scroll-driven full rotation
+      const angleX = sp * Math.PI * 2.0 + t * 0.18 + targetY * 0.6;
+      const angleY = sp * Math.PI * 1.3 + t * 0.25 + targetX * 0.6;
+      const angleZ = t * 0.06;
+
+      const cX = Math.cos(angleX), sX = Math.sin(angleX);
+      const cY = Math.cos(angleY), sY = Math.sin(angleY);
+      const cZ = Math.cos(angleZ), sZ = Math.sin(angleZ);
+
+      // Scale: breath effect + scroll shrink
+      const baseScale = Math.min(W, H) / 620;
+      const scaleBreath = 1 + Math.sin(t * 1.4) * 0.025;
+      const scaleScroll = 1 - sp * 0.45;
+      const scale       = baseScale * scaleBreath * scaleScroll;
+
+      // Perspective
+      const focal = 500;
+
+      // Scroll drift: shift left as user scrolls down
+      const driftX = sp * -W * 0.22;
+      const driftY = sp * -H * 0.06;
+
+      // Project all points
+      const projected = torusPoints.map(p => {
+        let q = { x: p.x * scale, y: p.y * scale, z: p.z * scale };
+        q = rotateX(q, cX, sX);
+        q = rotateY(q, cY, sY);
+        // RotateZ
+        const nx = q.x * cZ - q.y * sZ;
+        const ny = q.x * sZ + q.y * cZ;
+        q.x = nx; q.y = ny;
+
+        const s = focal / (focal + q.z);
+        return {
+          sx: CX + q.x * s + driftX,
+          sy: CY + q.y * s + driftY,
+          depth: q.z,
+          s,
+          u: p.u,
+          v: p.v,
+        };
+      });
+
+      // Clear
+      ctx.clearRect(0, 0, W, H);
+
+      // Draw lines along toroidal rings (u-direction)
+      for (let i = 0; i < pSeg; i++) {
+        for (let j = 0; j < qSeg; j++) {
+          const curr = projected[i * qSeg + j];
+          const nextJ = projected[i * qSeg + (j + 1) % qSeg];
+          const nextI = projected[((i + 1) % pSeg) * qSeg + j];
+
+          // Depth-based colour: brighter when closer
+          const d = (curr.depth + r + R) / (2 * (r + R));  // 0..1
+          const a = Math.max(0.05, d * 0.95);
+
+          // Inner ring: orange → amber
+          const red   = Math.round(255);
+          const green = Math.round(60 + d * 100);
+          const blue  = 0;
+
+          ctx.strokeStyle = `rgba(${red},${green},${blue},${a})`;
+          ctx.lineWidth   = curr.depth > 0 ? 1.2 : 0.6;
+
+          // Tube circles
+          ctx.beginPath();
+          ctx.moveTo(curr.sx, curr.sy);
+          ctx.lineTo(nextJ.sx, nextJ.sy);
+          ctx.stroke();
+
+          // Ring connects
+          ctx.globalAlpha = a * 0.55;
+          ctx.beginPath();
+          ctx.moveTo(curr.sx, curr.sy);
+          ctx.lineTo(nextI.sx, nextI.sy);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
       }
 
-      // Apply all rotations
-      group.rotation.x = 0.4 + targetRotX + dragVX;
-      group.rotation.y = t * 0.25 + targetRotY + dragVY;
-
-      // Wireframe rotates opposite (cool dual-spin effect)
-      wireKnot.rotation.y = -t * 0.12;
-      wireKnot.rotation.z =  t * 0.08;
-
-      // Scroll: scale down and drift to background
-      const sp = scrollProgress;
-      group.scale.setScalar(1.0 - sp * 0.45);
-      group.position.x = sp * -1.5;
-      group.position.z = sp * -2;
-
-      // Pulsing lights — all in orange spectrum
-      keyLight.intensity  = 8  + Math.sin(t * 1.2) * 2.0;
-      fillLight.intensity = 4  + Math.sin(t * 0.9 + 1) * 1.2;
-      rimLight.intensity  = 5  + Math.sin(t * 0.7 + 2) * 1.5;
-
-      // Orbit lights around knot
-      keyLight.position.x = Math.cos(t * 0.4) * 5;
-      keyLight.position.z = Math.sin(t * 0.4) * 4 + 2;
-      rimLight.position.x = Math.sin(t * 0.3) * 3;
-      rimLight.position.y = Math.cos(t * 0.5) * 4;
-
-      renderer.render(scene, camera);
+      // Glowing core dot
+      const cx = CX + driftX;
+      const cy = CY + driftY;
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 60 * scale);
+      grad.addColorStop(0,   `rgba(255,100,0,${0.18 + Math.sin(t * 2) * 0.06})`);
+      grad.addColorStop(0.5, `rgba(255,60,0,0.06)`);
+      grad.addColorStop(1,   'rgba(255,60,0,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(cx, cy, 60 * scale, 0, Math.PI * 2);
+      ctx.fill();
     }
-    animate();
+
+    // ── Animation loop ────────────────────────────────────────────────────────
+    function loop(time) {
+      render(time);
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
   })();
 
 
@@ -306,16 +283,13 @@ document.addEventListener('DOMContentLoaded', () => {
       x: 40, opacity: 0, duration: 0.8, ease: 'power3.out'
     });
 
-    // Footer CTA
     gsap.timeline({
       scrollTrigger: { trigger: '.footer-cta-section', start: 'top 78%', toggleActions: 'play none none none' }
     })
     .from('.footer-cta-content h2', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out' })
     .from('.footer-cta-content .btn', { scale: 0.9, opacity: 0, duration: 0.6, ease: 'back.out(1.5)' }, '-=0.4');
   }
-
   initGSAP();
-
 
   // ─── 7. MOBILE MENU ──────────────────────────────────────────────────────────
   const toggle = document.querySelector('.mobile-menu-toggle');
