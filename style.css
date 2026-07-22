@@ -81,6 +81,7 @@ body {
   mix-blend-mode: screen;
   transition: opacity 0.5s ease;
   opacity: 0;
+  will-change: transform, opacity;
 }
 
 /* Navigation Bar */
