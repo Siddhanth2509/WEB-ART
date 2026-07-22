@@ -280,19 +280,19 @@
     });
 
     // 4. Scroll-Linked Progress Bar (Top of Page)
-    scroll((info) => {
+    scroll((progress) => {
       // Maps scroll fraction directly to progress bar scale
       const bar = document.getElementById("scroll-bar");
-      bar.style.transform = `scaleX(${info.y.progress})`;
+      bar.style.transform = `scaleX(${progress})`;
     });
 
     // 5. Scroll-Triggered Parallax Element (Scale/Rotate 3D box)
     scroll(
-      (info) => {
+      (progress) => {
         const box = document.getElementById("scroll-box");
         // Map progress to rotation angle (0 to 360 deg) and scale (1 to 1.5)
-        const rotation = info.y.progress * 360;
-        const scale = 1 + info.y.progress * 0.5;
+        const rotation = progress * 360;
+        const scale = 1 + progress * 0.5;
         box.style.transform = `rotate(${rotation}deg) scale(${scale})`;
       },
       {
