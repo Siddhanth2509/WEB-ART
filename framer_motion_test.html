@@ -13,8 +13,8 @@
   <style>
     :root {
       --bg: #050505;
-      --card-bg: rgba(255, 255, 255, 0.03);
-      --card-border: rgba(255, 255, 255, 0.06);
+      --card-bg: rgba(255, 255, 255, 0.02);
+      --card-border: rgba(255, 255, 255, 0.05);
       --neon-orange: #ff4c00;
       --neon-cyan: #00e5ff;
       --text: #ffffff;
@@ -34,34 +34,34 @@
       color: var(--text);
       font-family: var(--font-body);
       overflow-x: hidden;
-      min-height: 250vh; /* space to test scroll animations */
-      padding: 80px 20px;
+      padding: 60px 0;
     }
 
     /* Ambient background glows */
     .glow-bg {
       position: fixed;
-      width: 500px;
-      height: 500px;
+      width: 600px;
+      height: 600px;
       border-radius: 50%;
       pointer-events: none;
-      filter: blur(100px);
+      filter: blur(140px);
       z-index: -1;
-      opacity: 0.15;
+      opacity: 0.12;
     }
     .glow-orange {
-      top: -100px;
-      right: -100px;
+      top: -150px;
+      right: -150px;
       background: var(--neon-orange);
     }
     .glow-cyan {
-      bottom: -100px;
-      left: -100px;
+      bottom: -150px;
+      left: -150px;
       background: var(--neon-cyan);
     }
 
     .container {
-      max-width: 1100px;
+      max-width: 1200px;
+      width: 90%;
       margin: 0 auto;
     }
 
@@ -73,7 +73,7 @@
     h1 {
       font-family: var(--font-display);
       font-weight: 800;
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-size: clamp(2.5rem, 6vw, 4.2rem);
       line-height: 1.1;
       letter-spacing: -0.03em;
       margin-bottom: 16px;
@@ -81,9 +81,89 @@
 
     header p {
       color: var(--text-muted);
-      font-size: 1.2rem;
-      max-width: 600px;
+      font-size: 1.15rem;
+      max-width: 620px;
       margin: 0 auto;
+    }
+
+    /* ─── PARALLAX IMAGE SECTION ─── */
+    .gallery-title {
+      font-family: var(--font-display);
+      text-align: center;
+      font-size: 2rem;
+      margin: 100px 0 40px 0;
+      letter-spacing: -0.02em;
+    }
+
+    .parallax-gallery-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      position: relative;
+      margin-bottom: 120px;
+    }
+
+    .gallery-col {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    /* Column offsets for static asymmetry */
+    .col-left {
+      margin-top: 0px;
+    }
+    .col-right {
+      margin-top: 80px;
+    }
+
+    .image-wrapper {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      aspect-ratio: 4/5;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      cursor: pointer;
+      perspective: 1000px;
+    }
+
+    .image-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: filter 0.5s ease;
+      filter: grayscale(20%) brightness(0.8);
+      transform-style: preserve-3d;
+    }
+
+    .image-wrapper:hover img {
+      filter: grayscale(0%) brightness(1.0);
+    }
+
+    .image-info {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      right: 24px;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .image-info span {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--neon-orange);
+    }
+
+    .image-info h4 {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 4px;
     }
 
     /* Grid of interactive test items */
@@ -91,7 +171,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 30px;
-      margin-bottom: 120px;
+      margin-bottom: 100px;
     }
 
     .card {
@@ -149,11 +229,11 @@
 
     /* Scroll section visualizer */
     .scroll-section {
-      border: 1px dashed rgba(255,255,255,0.1);
+      border: 1px dashed rgba(255,255,255,0.08);
       border-radius: 24px;
       padding: 80px 40px;
       text-align: center;
-      margin-top: 100px;
+      margin-top: 60px;
       position: relative;
     }
 
@@ -163,7 +243,7 @@
       background: linear-gradient(135deg, var(--neon-orange), var(--neon-cyan));
       border-radius: 24px;
       margin: 40px auto;
-      box-shadow: 0 10px 30px rgba(255, 76, 0, 0.3);
+      box-shadow: 0 10px 30px rgba(255, 76, 0, 0.25);
     }
 
     .scroll-bar-indicator {
@@ -187,25 +267,71 @@
 
   <div class="container">
     <header>
-      <h1 id="headline">Motion v11 Sandbox</h1>
-      <p>Interactive testing sandbox showcasing physics-based springs, gesture triggers, layout changes, and parallax variables.</p>
+      <h1 id="headline">Motion v11 Showcase</h1>
+      <p>Interactive testing sandbox showcasing physics-based springs, gesture triggers, 3D cursor tracking, and scroll-linked column parallax.</p>
     </header>
 
     <main>
+      <!-- INTERACTIVE CARDS -->
       <div class="test-grid">
-        
-        <!-- CARD 1: Spring Gesture Drag -->
         <div class="card card-orange" id="card-drag">
           <div class="card-badge">Gesture Physics</div>
           <h3>Spring Drag & Return</h3>
           <p>Click, grab, and throw this card. It uses a high-stiffness spring parameter to snap back to its original grid index with rubber-band inertia.</p>
         </div>
 
-        <!-- CARD 2: Hover Scale & Brightness -->
         <div class="card card-cyan" id="card-hover">
           <div class="card-badge">Hover Trigger</div>
           <h3>Reactive Hover Depth</h3>
           <p>Hover over this card to trigger a spring scale transition and brightness highlight. Employs modern compositor-friendly GPU properties.</p>
+        </div>
+      </div>
+
+      <!-- ─── 3D PARALLAX IMAGE GALLERY ─── -->
+      <h2 class="gallery-title">Parallax Cross-Scroll</h2>
+      
+      <div class="parallax-gallery-container" id="gallery-container">
+        
+        <!-- Left Column: Animates UP on scroll -->
+        <div class="gallery-col col-left" id="col-left">
+          
+          <div class="image-wrapper hover-tilt">
+            <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80" alt="Glow Grid">
+            <div class="image-info">
+              <span>Abstract</span>
+              <h4>Neon Spectrum</h4>
+            </div>
+          </div>
+
+          <div class="image-wrapper hover-tilt">
+            <img src="https://images.unsplash.com/photo-1618005198143-e5283b519a7f?auto=format&fit=crop&w=600&q=80" alt="Liquid Glass">
+            <div class="image-info">
+              <span>Render</span>
+              <h4>Curved Paths</h4>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Animates DOWN on scroll -->
+        <div class="gallery-col col-right" id="col-right">
+          
+          <div class="image-wrapper hover-tilt">
+            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80" alt="Architecture">
+            <div class="image-info">
+              <span>Architecture</span>
+              <h4>Glass Pavilion</h4>
+            </div>
+          </div>
+
+          <div class="image-wrapper hover-tilt">
+            <img src="https://images.unsplash.com/photo-1515263487990-61b07816b324?auto=format&fit=crop&w=600&q=80" alt="Cyberpunk Reflections">
+            <div class="image-info">
+              <span>Cityscape</span>
+              <h4>Cyber Lattice</h4>
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -214,7 +340,7 @@
       <div class="scroll-section" id="scroll-trigger-section">
         <div class="card-badge">Scroll Sync</div>
         <h3>Scroll-Driven Rotator</h3>
-        <p>Scroll down the page. The container below will rotate and scale proportionally based on your scroll progression.</p>
+        <p>Keep scrolling down. The container below will rotate and scale proportionally based on your scroll progression.</p>
         <div class="scroll-box" id="scroll-box"></div>
       </div>
 
@@ -225,10 +351,10 @@
   <script type="module">
     import { animate, scroll } from "https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm";
 
-    // 1. Title Entrance Animation (Staggered Characters or simple Fade Slide)
+    // 1. Title Entrance Animation
     animate("#headline", 
-      { y: [20, 0], opacity: [0, 1] }, 
-      { duration: 0.8, ease: "easeOut" }
+      { y: [25, 0], opacity: [0, 1] }, 
+      { duration: 0.9, ease: "easeOut" }
     );
 
     // 2. Drag & Snap Physics (Card 1)
@@ -248,14 +374,12 @@
       if (!isDragging) return;
       currentX = e.clientX - startX;
       currentY = e.clientY - startY;
-      // Offset position manually on frame updates
       dragCard.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(0.96)`;
     });
 
     window.addEventListener("mouseup", () => {
       if (!isDragging) return;
       isDragging = false;
-      // Spring return to origin
       currentX = 0;
       currentY = 0;
       animate(dragCard, 
@@ -279,25 +403,70 @@
       );
     });
 
-    // 4. Scroll-Linked Progress Bar (Top of Page)
+    // 4. 3D Hover Tilt on Image Wrappers
+    document.querySelectorAll(".hover-tilt").forEach(wrapper => {
+      const img = wrapper.querySelector("img");
+      
+      wrapper.addEventListener("mousemove", (e) => {
+        const rect = wrapper.getBoundingClientRect();
+        const mouseX = (e.clientX - rect.left) / rect.width - 0.5;
+        const mouseY = (e.clientY - rect.top) / rect.height - 0.5;
+        
+        // Warp/skew slightly towards pointer position (max 10 deg)
+        const rotY = mouseX * 20;
+        const rotX = -mouseY * 20;
+        const scale = 1.05;
+
+        animate(img, 
+          { transform: `scale3d(${scale}, ${scale}, ${scale}) rotateX(${rotX}deg) rotateY(${rotY}deg)` },
+          { duration: 0.15 }
+        );
+      });
+
+      wrapper.addEventListener("mouseleave", () => {
+        animate(img, 
+          { transform: "scale3d(1,1,1) rotateX(0deg) rotateY(0deg)" },
+          { type: "spring", stiffness: 150, damping: 18 }
+        );
+      });
+    });
+
+    // 5. Scroll-Linked Progress Bar (Top of Page)
     scroll((progress) => {
-      // Maps scroll fraction directly to progress bar scale
       const bar = document.getElementById("scroll-bar");
       bar.style.transform = `scaleX(${progress})`;
     });
 
-    // 5. Scroll-Triggered Parallax Element (Scale/Rotate 3D box)
+    // 6. Asymmetrical Parallax Column Scroll
+    scroll(
+      (progress) => {
+        const colLeft = document.getElementById("col-left");
+        const colRight = document.getElementById("col-right");
+
+        // Left column moves up on scroll, right column moves down
+        const leftShift = progress * -160;
+        const rightShift = (progress - 0.5) * 160; // Offset start path
+
+        colLeft.style.transform  = `translate3d(0, ${leftShift}px, 0)`;
+        colRight.style.transform = `translate3d(0, ${rightShift}px, 0)`;
+      },
+      {
+        target: document.getElementById("gallery-container"),
+        offset: ["start end", "end start"]
+      }
+    );
+
+    // 7. Scroll-Triggered Parallax Element (Scale/Rotate 3D box at bottom)
     scroll(
       (progress) => {
         const box = document.getElementById("scroll-box");
-        // Map progress to rotation angle (0 to 360 deg) and scale (1 to 1.5)
         const rotation = progress * 360;
-        const scale = 1 + progress * 0.5;
+        const scale = 1 + progress * 0.4;
         box.style.transform = `rotate(${rotation}deg) scale(${scale})`;
       },
       {
         target: document.getElementById("scroll-trigger-section"),
-        offset: ["start end", "end start"] // animates while section moves through viewport
+        offset: ["start end", "end start"]
       }
     );
 
