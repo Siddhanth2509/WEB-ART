@@ -9,6 +9,16 @@
 *.bmp
 *.tiff
 
+# Ignore 3D models and their assets
+*.glb
+*.gltf
+*.fbx
+*.obj
+*.mtl
+*.blend
+*.fbm
+tripo_models/
+
 # Ignore node modules if any
 node_modules/
 
