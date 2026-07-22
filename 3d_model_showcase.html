@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fluxora 3D Telemetry Dashboard</title>
+  <title>Fluxora 3D — Cinematic Scroll Showcase</title>
   
   <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,13 +12,13 @@
   
   <style>
     :root {
-      --bg: #030303;
+      --bg: #060606;
       --bg-void: #000000;
       --bg-raised: rgba(255, 255, 255, 0.02);
       --card-border: rgba(255, 255, 255, 0.05);
-      --border-hover: rgba(255, 76, 0, 0.25);
+      --border-hover: rgba(255, 76, 0, 0.35);
       --neon-orange: #ff4c00;
-      --neon-cyan: #00e5ff;
+      --amber-glow: rgba(181, 80, 0, 0.2);
       --text: #ffffff;
       --text-muted: rgba(255, 255, 255, 0.45);
       --font-display: 'Syne', sans-serif;
@@ -36,55 +36,44 @@
       background: var(--bg);
       color: var(--text);
       font-family: var(--font-body);
-      overflow: hidden; 
-      height: 100vh;
-      display: flex;
+      overflow-x: hidden;
+      background-color: var(--bg-void);
     }
 
     /* Ambient background glowing circles */
     .ambient-glow {
       position: fixed;
-      width: 700px;
-      height: 700px;
-      background: radial-gradient(circle, rgba(255, 76, 0, 0.06) 0%, transparent 65%);
-      bottom: -150px;
-      left: -100px;
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, var(--amber-glow) 0%, transparent 65%);
+      bottom: -200px;
+      right: -100px;
       pointer-events: none;
       filter: blur(120px);
       z-index: 0;
+    }
+
+    /* Technical grid overlay */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 80px 80px;
+      pointer-events: none;
+      z-index: 1;
     }
 
     /* Scanline effect */
     .scanlines {
       position: fixed;
       inset: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-      background-size: 100% 4px, 6px 100%;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%);
+      background-size: 100% 4px;
       pointer-events: none;
       z-index: 9998;
-      opacity: 0.3;
+      opacity: 0.25;
     }
-
-    /* Subtle grid layout overlays */
-    .hud-grid {
-      position: fixed;
-      inset: 40px;
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      pointer-events: none;
-      z-index: 100;
-    }
-
-    .hud-corner {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      will-change: transform;
-    }
-    .corner-tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
-    .corner-tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
-    .corner-bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
-    .corner-br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
 
     /* ─── PRELOADER SCREEN ─── */
     #preloader {
@@ -136,205 +125,44 @@
       letter-spacing: 0.1em;
     }
 
-    /* ─── DASHBOARD WRAPPER ─── */
-    .dashboard-layout {
-      display: grid;
-      grid-template-columns: 480px 1fr;
-      width: 100%;
-      height: 100%;
-      position: relative;
+    /* ─── FIXED VIEWPORT CANVAS ─── */
+    .canvas-container {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 55vw;
+      height: 100vh;
       z-index: 2;
-    }
-
-    /* ─── LEFT PANEL (Telemetry & Control Panel) ─── */
-    .control-panel {
-      background: rgba(3, 3, 3, 0.75);
-      border-right: 1px solid var(--card-border);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      padding: 60px 45px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      height: 100%;
-      z-index: 10;
-      overflow-y: auto;
-      transform: translateX(-100%); /* Animated on entrance */
-      will-change: transform;
-    }
-
-    .panel-header .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--neon-orange);
-      border: 1px solid rgba(255, 76, 0, 0.2);
-      background: rgba(255, 76, 0, 0.04);
-      padding: 6px 16px;
-      border-radius: 100px;
-      margin-bottom: 28px;
-    }
-
-    .panel-header .badge::before {
-      content: '';
-      display: block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--neon-orange);
-      box-shadow: 0 0 8px var(--neon-orange);
-    }
-
-    .panel-header h1 {
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 3rem;
-      line-height: 1.05;
-      letter-spacing: -0.04em;
-      margin-bottom: 16px;
-    }
-
-    .panel-header p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-bottom: 40px;
-    }
-
-    /* Details display block */
-    .model-info-block {
-      margin-bottom: 40px;
-    }
-
-    .model-info-block h3 {
-      font-family: var(--font-display);
-      font-size: 1.8rem;
-      margin-bottom: 12px;
-      letter-spacing: -0.03em;
-    }
-
-    .model-info-block p {
-      color: var(--text-muted);
-      line-height: 1.5;
-      font-size: 0.92rem;
-    }
-
-    .bento-specs {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-top: 30px;
-    }
-
-    .spec-card {
-      background: var(--bg-raised);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 20px;
-      transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-      
-      --rx: 0deg; --ry: 0deg; --s: 1;
-      transform: rotateX(var(--rx)) rotateY(var(--ry)) scale3d(var(--s), var(--s), var(--s));
-      transform-style: preserve-3d;
-      will-change: transform;
-    }
-    .spec-card:hover {
-      border-color: var(--border-hover);
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .spec-card span {
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--neon-cyan);
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .spec-card h5 {
-      font-family: var(--font-mono);
-      font-size: 1.15rem;
-      font-weight: 700;
-    }
-
-    /* Lighting state deck */
-    .lighting-deck {
-      border-top: 1px solid var(--card-border);
-      padding-top: 35px;
-      margin-top: auto;
-    }
-
-    .deck-title {
-      font-family: var(--font-mono);
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 16px;
-      color: var(--text-muted);
-    }
-
-    .btn-group {
-      display: flex;
-      gap: 12px;
-    }
-
-    .btn {
-      flex: 1;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--card-border);
-      color: #fff;
-      font-family: var(--font-mono);
-      font-weight: 600;
-      font-size: 0.8rem;
-      padding: 14px 0;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .btn.active, .btn:hover {
-      background: var(--neon-orange);
-      border-color: var(--neon-orange);
-      box-shadow: 0 4px 24px rgba(255, 76, 0, 0.25);
-    }
-
-    /* ─── RIGHT PANEL (WebGL Scene) ─── */
-    .viewport-panel {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background: #000;
+      pointer-events: auto;
     }
 
     #webgl-canvas {
-      position: absolute;
-      inset: 0;
       width: 100%;
       height: 100%;
       cursor: grab;
-      z-index: 1;
-      opacity: 0; /* Animated on entrance */
-      will-change: opacity;
     }
     #webgl-canvas:active {
       cursor: grabbing;
     }
 
-    /* ─── LIVE HUD NUMBERS DECK ─── */
+    /* ─── HUD TELEMETRY OVERLAYS ─── */
+    .hud-header {
+      position: fixed;
+      top: 50px;
+      left: 50px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      color: var(--neon-orange);
+      z-index: 100;
+      pointer-events: none;
+      text-transform: uppercase;
+    }
+
     .hud-telemetry {
-      position: absolute;
-      top: 60px;
-      right: 60px;
+      position: fixed;
+      top: 50px;
+      right: 50px;
       z-index: 100;
       font-family: var(--font-mono);
       text-align: right;
@@ -347,7 +175,7 @@
     .telemetry-row {
       display: flex;
       gap: 16px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       justify-content: flex-end;
     }
 
@@ -357,47 +185,149 @@
     }
 
     .telemetry-value {
-      color: var(--neon-cyan);
+      color: var(--neon-orange);
       font-weight: 700;
     }
 
-    /* ─── MODEL SWITCHER OVERLAY ─── */
-    .switcher-overlay {
-      position: absolute;
-      bottom: 60px;
-      left: 50%;
-      transform: translate3d(-50%, 150px, 0); /* Animated on entrance */
-      z-index: 100;
+    /* ─── SCROLL SECTIONS ─── */
+    .content-wrapper {
+      position: relative;
+      z-index: 3;
+      pointer-events: none; /* click through to WebGL scene */
+    }
+
+    .scroll-section {
+      min-height: 100vh;
       display: flex;
-      gap: 16px;
-      background: rgba(3, 3, 3, 0.65);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid var(--card-border);
-      padding: 10px 20px;
+      flex-direction: column;
+      justify-content: center;
+      width: 45vw; /* keep text content on the left half */
+      padding: 100px 50px 100px 80px;
+      position: relative;
+    }
+
+    .interactive-element {
+      pointer-events: auto; /* enable click on cards & buttons */
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--neon-orange);
+      border: 1px solid rgba(255, 76, 0, 0.25);
+      background: rgba(255, 76, 0, 0.04);
+      padding: 6px 16px;
       border-radius: 100px;
+      margin-bottom: 28px;
+      width: fit-content;
+    }
+
+    .badge::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--neon-orange);
+      box-shadow: 0 0 8px var(--neon-orange);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(2.5rem, 5vw, 4.2rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 20px;
+    }
+
+    h1 span {
+      display: block;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    /* Bento grid templates */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .spec-card {
+      background: var(--bg-raised);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 22px;
+      transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+      
+      --rx: 0deg; --ry: 0deg; --s: 1;
+      transform: rotateX(var(--rx)) rotateY(var(--ry)) scale3d(var(--s), var(--s), var(--s));
+      transform-style: preserve-3d;
       will-change: transform;
     }
+    
+    .spec-card:hover {
+      border-color: var(--border-hover);
+      background: rgba(255, 255, 255, 0.04);
+    }
 
-    .switcher-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
+    .spec-card span {
       font-family: var(--font-mono);
-      font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 12px 28px;
-      border-radius: 100px;
+      letter-spacing: 0.1em;
+      color: var(--neon-orange);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .spec-card h5 {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    /* Nav Indicator Dot Trackers */
+    .nav-trackers {
+      position: fixed;
+      right: 50px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      pointer-events: auto;
+    }
+
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
       cursor: pointer;
       transition: all 0.3s;
     }
 
-    .switcher-btn.active {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    .nav-dot.active {
+      background: var(--neon-orange);
+      transform: scale(1.4);
+      box-shadow: 0 0 10px var(--neon-orange);
     }
   </style>
 </head>
@@ -415,94 +345,105 @@
   </div>
 
   <div class="scanlines"></div>
+  <div class="grid-overlay"></div>
   <div class="ambient-glow"></div>
 
-  <!-- HUD Grid framing corners -->
-  <div class="hud-grid">
-    <div class="hud-corner corner-tl"></div>
-    <div class="hud-corner corner-tr"></div>
-    <div class="hud-corner corner-bl"></div>
-    <div class="hud-corner corner-br"></div>
+  <!-- HUD FIXED META OVERLAYS -->
+  <div class="hud-header">SYSTEM ARCHITECTURE // V11.0</div>
+  
+  <div class="hud-telemetry">
+    <div class="telemetry-row">
+      <span class="telemetry-label">SYSTEM STATE:</span>
+      <span class="telemetry-value">ENGAGED</span>
+    </div>
+    <div class="telemetry-row">
+      <span class="telemetry-label">ACTIVE MODEL:</span>
+      <span class="telemetry-value" id="hud-model">SOLDIER</span>
+    </div>
+    <div class="telemetry-row">
+      <span class="telemetry-label">ROTATION Y:</span>
+      <span class="telemetry-value" id="hud-rotation">0.00°</span>
+    </div>
+    <div class="telemetry-row">
+      <span class="telemetry-label">CAMERA Z:</span>
+      <span class="telemetry-value" id="hud-zoom">7.50</span>
+    </div>
   </div>
 
-  <!-- DASHBOARD WRAPPER -->
-  <div class="dashboard-layout">
+  <!-- Vertical Scroll Indicator Dots -->
+  <div class="nav-trackers">
+    <button class="nav-dot active" data-section="0"></button>
+    <button class="nav-dot" data-section="1"></button>
+    <button class="nav-dot" data-section="2"></button>
+  </div>
+
+  <!-- 3D WebGL FIXED VIEWPORT CANVAS -->
+  <div class="canvas-container">
+    <canvas id="webgl-canvas"></canvas>
+  </div>
+
+  <!-- SCROLLABLE CONTENT LAYOUT -->
+  <div class="content-wrapper">
     
-    <!-- LEFT PANEL (Control Deck) -->
-    <aside class="control-panel" id="control-panel">
-      <div class="panel-header">
-        <div class="badge">Telemetry Module</div>
-        <h1>Fluxora 3D</h1>
-        <p>Advanced real-time model visualizer showcasing neural networks, custom mesh compilers, and active material shade parameters.</p>
-      </div>
-
-      <!-- Telemetry Info block -->
-      <div class="model-info-block" id="info-container">
-        <h3 id="model-title">Loading Model...</h3>
-        <p id="model-desc">Please wait while the shader structures compile.</p>
-        
-        <div class="bento-specs">
-          <div class="spec-card">
-            <span>Topology</span>
-            <h5 id="spec-poly">--</h5>
-          </div>
-          <div class="spec-card">
-            <span>Shading</span>
-            <h5 id="spec-shader">--</h5>
-          </div>
-          <div class="spec-card">
-            <span>Materials</span>
-            <h5 id="spec-mat">--</h5>
-          </div>
-          <div class="spec-card">
-            <span>Source</span>
-            <h5 id="spec-source">--</h5>
-          </div>
-        </div>
-      </div>
-
-      <!-- Lighting Controller Deck -->
-      <div class="lighting-deck">
-        <div class="deck-title">Spotlight Vector</div>
-        <div class="btn-group">
-          <button class="btn active" id="btn-orange">Amber</button>
-          <button class="btn" id="btn-cyan">Teal</button>
-        </div>
-      </div>
-    </aside>
-
-    <!-- RIGHT PANEL (WebGL Scene) -->
-    <main class="viewport-panel">
+    <!-- SECTION 1: SOLDIER GLB -->
+    <section class="scroll-section" id="section-0">
+      <div class="badge">Model Unit 01</div>
+      <h1>Neural Soldier <span>Mesh Architecture</span></h1>
+      <p class="section-desc">
+        Procedurally compiled binary GLB soldier model detailing vertex coordinate sets and clean surface distribution mapped via neural rendering scripts.
+      </p>
       
-      <!-- Live HUD coordinates readout overlay -->
-      <div class="hud-telemetry">
-        <div class="telemetry-row">
-          <span class="telemetry-label">SYSTEM STATE:</span>
-          <span class="telemetry-value">ONLINE</span>
+      <div class="bento-grid interactive-element">
+        <div class="spec-card">
+          <span>Topology</span>
+          <h5>High Poly</h5>
         </div>
-        <div class="telemetry-row">
-          <span class="telemetry-label">FPS:</span>
-          <span class="telemetry-value">60.00</span>
-        </div>
-        <div class="telemetry-row">
-          <span class="telemetry-label">ROTATION Y:</span>
-          <span class="telemetry-value" id="hud-rotation">0.00°</span>
-        </div>
-        <div class="telemetry-row">
-          <span class="telemetry-label">VECTOR TARGET:</span>
-          <span class="telemetry-value" id="hud-vector">X: 0.00 / Y: 0.00</span>
+        <div class="spec-card">
+          <span>Materials</span>
+          <h5>Baked GLB</h5>
         </div>
       </div>
+    </section>
 
-      <canvas id="webgl-canvas"></canvas>
-
-      <!-- MODEL SWITCHER OVERLAY -->
-      <div class="switcher-overlay" id="switcher-panel">
-        <button class="switcher-btn active" data-model="soldier">01 / Soldier</button>
-        <button class="switcher-btn" data-model="ps5">02 / PS5 Console</button>
-        <button class="switcher-btn" data-model="girl">03 / Futuristic Girl</button>
+    <!-- SECTION 2: PS5 CONSOLE -->
+    <section class="scroll-section" id="section-1">
+      <div class="badge">Model Unit 02</div>
+      <h1>Sleek PS5 <span>Matte Black Console</span></h1>
+      <p class="section-desc">
+        A custom procedural 3D model styled to display the PS5 console. Constructed inside the WebGL shader context with metallic wings and neon LED light channels.
+      </p>
+      
+      <div class="bento-grid interactive-element">
+        <div class="spec-card">
+          <span>Source</span>
+          <h5>Procedural</h5>
+        </div>
+        <div class="spec-card">
+          <span>LED Glow</span>
+          <h5>Emissive Blue</h5>
+        </div>
       </div>
-    </main>
+    </section>
+
+    <!-- SECTION 3: FUTURISTIC GIRL OBJ -->
+    <section class="scroll-section" id="section-2">
+      <div class="badge">Model Unit 03</div>
+      <h1>Futuristic Girl <span>Textured OBJ Mesh</span></h1>
+      <p class="section-desc">
+        Tripo AI 3D character mesh model. Mapped in real-time inside our PBR pipeline using custom normal, color, roughness, and metalness texture channels.
+      </p>
+      
+      <div class="bento-grid interactive-element">
+        <div class="spec-card">
+          <span>Mesh Size</span>
+          <h5>90MB OBJ</h5>
+        </div>
+        <div class="spec-card">
+          <span>Textures</span>
+          <h5>4 Baked JPGs</h5>
+        </div>
+      </div>
+    </section>
 
   </div>
 
@@ -513,37 +454,9 @@
 
   <!-- ES Module script for Motion v11 -->
   <script type="module">
-    import { animate, stagger } from "https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm";
+    import { animate, scroll } from "https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm";
 
-    // Telemetry Content Map
-    const modelDetails = {
-      soldier: {
-        title: "Tactical Division",
-        desc: "A high-fidelity binary GLB mesh generated procedurally by neural networks, mapping accurate coordinates and realistic combat vest geometry.",
-        poly: "High Poly",
-        shader: "ThreeJS PBR",
-        mat: "Baked GLB",
-        source: "Tripo GLB"
-      },
-      ps5: {
-        title: "Matte Black PS5",
-        desc: "A procedural 3D model designed to simulate the Matte Black Edition console. Complete with dual curved outer wings and glowing internal LED strips.",
-        poly: "Procedural",
-        shader: "Metallic PBR",
-        mat: "Matte/LED",
-        source: "Built-in"
-      },
-      girl: {
-        title: "Futuristic Girl",
-        desc: "A premium 3D OBJ mesh generated by Tripo AI. Custom mapped in real-time with Basecolor, Metallic, Normal, and Roughness textures.",
-        poly: "90MB OBJ Mesh",
-        shader: "Mapped PBR",
-        mat: "PBR Textures",
-        source: "Tripo OBJ"
-      }
-    };
-
-    // ─── 1. THREE.JS SCENE SETUP ────────────────────────────────────────────────
+    // ─── 1. THREE.JS STUDIO SCENE SETUP ──────────────────────────────────────────
     const canvas = document.getElementById("webgl-canvas");
     const container = canvas.parentElement;
 
@@ -557,19 +470,19 @@
     const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100);
     camera.position.set(0, 0, 7.5);
 
-    // Studio Lights
-    const ambientLight = new THREE.AmbientLight(0x0a0a0a, 4);
+    // Studio Spotlight Lighting (Curated warm coppers)
+    const ambientLight = new THREE.AmbientLight(0x0e0702, 4.5);
     scene.add(ambientLight);
 
-    const lightOrange = new THREE.DirectionalLight(0xff5500, 7);
-    lightOrange.position.set(5, 3, 5);
-    scene.add(lightOrange);
+    const lightKey = new THREE.DirectionalLight(0xff5500, 7.5);
+    lightKey.position.set(5, 3, 5);
+    scene.add(lightKey);
 
-    const lightCyan = new THREE.DirectionalLight(0x00e5ff, 4);
-    lightCyan.position.set(-5, -2, -3);
-    scene.add(lightCyan);
+    const lightFill = new THREE.DirectionalLight(0xffaa44, 4);
+    lightFill.position.set(-5, -2, -3);
+    scene.add(lightFill);
 
-    // ─── 2. TEXTURE LOADER & MATERIAL (For Futuristic Girl OBJ) ───────────────────
+    // ─── 2. TEXTURE MAPS LOADER (For Futuristic Girl) ──────────────────────────────
     const textureLoader = new THREE.TextureLoader();
     const basePath = "tripo_models/uploads-files-7216568-FuturisticGirl.fbm/FuturisticGirl.fbm/";
     
@@ -589,218 +502,138 @@
       metalness: 0.25
     });
 
-    // ─── 3. LOAD SOLDIER GLB MODEL (Model 1) ──────────────────────────────────────
+    // ─── 3. LOADING THE 3 MODELS ─────────────────────────────────────────────────
     const gltfLoader = new THREE.GLTFLoader();
-    let soldierModel;
+    const objLoader = new THREE.OBJLoader();
+    
+    let soldierModel, ps5Group, girlModel;
 
+    // Load Model 1: Soldier GLB
     gltfLoader.load(
       "tripo_models/army_man.glb",
       (gltf) => {
         soldierModel = gltf.scene;
-        
-        // Center-contain
-        const box = new THREE.Box3().setFromObject(soldierModel);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const scale = 3.6 / maxDim;
-        
-        soldierModel.scale.setScalar(scale);
-        soldierModel.position.sub(center.multiplyScalar(scale));
-        soldierModel.position.y -= 0.2;
-
-        soldierModel.traverse(node => {
-          if (node.isMesh) {
-            node.material.roughness = 0.5;
-            node.material.metalness = 0.3;
-          }
-        });
-
-        soldierModel.visible = true;
+        setupModel(soldierModel, 3.6, -0.2);
+        soldierModel.visible = true; // Visible initially
         scene.add(soldierModel);
 
         // Hide preloader
         document.getElementById("preloader").style.opacity = "0";
         setTimeout(() => document.getElementById("preloader").style.display = "none", 800);
-        
-        // Play HUD entrance layout
-        triggerEntranceAnimations();
       },
       (xhr) => {
         if (xhr.total > 0) {
           const progress = Math.round((xhr.loaded / xhr.total) * 100);
           document.getElementById("progress-fill").style.width = `${progress}%`;
-          document.getElementById("progress-text").textContent = `Compiling Node: ${progress}%`;
+          document.getElementById("progress-text").textContent = `LOADING ASSETS: ${progress}%`;
         }
       },
       (err) => {
         console.error("Soldier GLB load failed:", err);
         document.getElementById("preloader").style.opacity = "0";
         setTimeout(() => document.getElementById("preloader").style.display = "none", 800);
-        triggerEntranceAnimations();
       }
     );
 
-    // ─── 4. PROCEDURAL PS5 CONSOLE MODEL (Model 2) ──────────────────────────────
-    const ps5Group = new THREE.Group();
-    
-    // Core black body
+    // Load Model 2: Procedural PS5 Console (ThreeJS meshes)
+    ps5Group = new THREE.Group();
     const coreGeo = new THREE.BoxGeometry(0.5, 3.2, 1.4);
     const coreMat = new THREE.MeshPhysicalMaterial({ color: 0x050505, roughness: 0.1, metalness: 0.8 });
-    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
-    ps5Group.add(coreMesh);
+    ps5Group.add(new THREE.Mesh(coreGeo, coreMat));
 
-    // Curved side wings
     const wingMat = new THREE.MeshPhysicalMaterial({ color: 0x0f0f0f, roughness: 0.5, metalness: 0.1, clearcoat: 0.5 });
     
-    const wingLeftGeo = new THREE.BoxGeometry(0.08, 3.4, 1.5);
-    const wingLeft = new THREE.Mesh(wingLeftGeo, wingMat);
+    const wingLeft = new THREE.Mesh(new THREE.BoxGeometry(0.08, 3.4, 1.5), wingMat);
     wingLeft.position.set(-0.29, 0.05, 0.02);
     wingLeft.rotation.y = 0.03;
     ps5Group.add(wingLeft);
 
-    const wingRightGeo = new THREE.BoxGeometry(0.08, 3.4, 1.5);
-    const wingRight = new THREE.Mesh(wingRightGeo, wingMat);
+    const wingRight = new THREE.Mesh(new THREE.BoxGeometry(0.08, 3.4, 1.5), wingMat);
     wingRight.position.set(0.29, 0.05, 0.02);
     wingRight.rotation.y = -0.03;
     ps5Group.add(wingRight);
 
-    // Emissive LED blue strip light
-    const ledMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
-    const ledGeo = new THREE.BoxGeometry(0.02, 3.0, 0.02);
-    const ledMesh = new THREE.Mesh(ledGeo, ledMat);
+    const ledMesh = new THREE.Mesh(new THREE.BoxGeometry(0.02, 3.0, 0.02), new THREE.MeshBasicMaterial({ color: 0x00e5ff }));
     ledMesh.position.set(0.26, 0.1, 0.72);
     ps5Group.add(ledMesh);
 
     ps5Group.visible = false;
     scene.add(ps5Group);
 
-    // ─── 5. LOAD FUTURISTIC GIRL OBJ MODEL (Model 3) ──────────────────────────────
-    const objLoader = new THREE.OBJLoader();
-    let girlModel;
-
+    // Load Model 3: Futuristic Girl OBJ
     objLoader.load(
       "tripo_models/uploads_files_7216568_FuturisticGirl.obj",
       (obj) => {
         girlModel = obj;
-        
-        // Map textures onto OBJ child meshes
+        setupModel(girlModel, 3.6, -0.3);
         girlModel.traverse(node => {
-          if (node.isMesh) {
-            node.material = girlMaterial;
-          }
+          if (node.isMesh) node.material = girlMaterial;
         });
-
-        // Center-contain
-        const box = new THREE.Box3().setFromObject(girlModel);
-        const size = box.getSize(new THREE.Vector3());
-        const center = box.getCenter(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const scale = 3.6 / maxDim;
-
-        girlModel.scale.setScalar(scale);
-        girlModel.position.sub(center.multiplyScalar(scale));
-        girlModel.position.y -= 0.3;
-
         girlModel.visible = false;
         scene.add(girlModel);
-      },
-      undefined,
-      (err) => {
-        console.error("Futuristic Girl OBJ load failed:", err);
       }
     );
 
-    // ─── 6. DYNAMIC SWITCHER AND TELEMETRY LOGIC ────────────────────────────────
-    let activeModelKey = "soldier";
-
-    function updateTelemetry(key) {
-      const details = modelDetails[key];
+    // Auto center-scale helper function
+    function setupModel(mesh, boundsSize, yOffset) {
+      const box = new THREE.Box3().setFromObject(mesh);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = boundsSize / maxDim;
       
-      // Motion v11 transition animations for text cards
-      animate("#model-title", { opacity: [0, 1], y: [15, 0] }, { duration: 0.4 });
-      animate("#model-desc", { opacity: [0, 1], y: [10, 0] }, { duration: 0.4, delay: 0.08 });
-      
-      // Stagger animate spec cards up
-      animate(".spec-card", 
-        { opacity: [0, 1], y: [20, 0] }, 
-        { delay: stagger(0.06), duration: 0.4 }
-      );
-      
-      document.getElementById("model-title").textContent = details.title;
-      document.getElementById("model-desc").textContent = details.desc;
-      
-      document.getElementById("spec-poly").textContent = details.poly;
-      document.getElementById("spec-shader").textContent = details.shader;
-      document.getElementById("spec-mat").textContent = details.mat;
-      document.getElementById("spec-source").textContent = details.source;
+      mesh.scale.setScalar(scale);
+      mesh.position.sub(center.multiplyScalar(scale));
+      mesh.position.y += yOffset;
     }
 
-    document.querySelectorAll(".switcher-btn").forEach(btn => {
-      btn.addEventListener("click", (e) => {
-        document.querySelectorAll(".switcher-btn").forEach(b => b.classList.remove("active"));
-        e.target.classList.add("active");
-
-        const target = e.target.dataset.model;
-        activeModelKey = target;
-
-        // Toggle visibility states
-        if (soldierModel) soldierModel.visible = (target === "soldier");
-        ps5Group.visible = (target === "ps5");
-        if (girlModel) girlModel.visible = (target === "girl");
-
-        updateTelemetry(target);
-
-        // Flash screen spotlight on transition
-        const prevOrange = lightOrange.intensity;
-        const prevCyan = lightCyan.intensity;
-        animate(lightOrange, { intensity: [15, prevOrange] }, { duration: 0.6 });
-        animate(lightCyan, { intensity: [15, prevCyan] }, { duration: 0.6 });
+    // ─── 4. DYNAMIC SCROLL TRANSITIONS PIPELINE ──────────────────────────────────
+    let activeSection = 0;
+    
+    // Animate UI indicator dots
+    const dots = document.querySelectorAll(".nav-dot");
+    function updateActiveDot(index) {
+      dots.forEach((dot, idx) => {
+        if (idx === index) dot.classList.add("active");
+        else dot.classList.remove("active");
       });
-    });
-
-    // ─── 7. ANIMATIONS ENTRANCE ORCHESTRATION ────────────────────────────────────
-    function triggerEntranceAnimations() {
-      // 1. Slide in left control panel
-      animate("#control-panel", 
-        { transform: "translateX(0%)" }, 
-        { type: "spring", stiffness: 100, damping: 18 }
-      );
-
-      // 2. Fade in canvas viewport
-      animate("#webgl-canvas", 
-        { opacity: [0, 1] }, 
-        { duration: 1.2, ease: "easeOut" }
-      );
-
-      // 3. Slide up bottom switcher panel
-      animate("#switcher-panel", 
-        { transform: "translate3d(-50%, 0, 0)" }, 
-        { type: "spring", stiffness: 120, damping: 16, delay: 0.3 }
-      );
-
-      // 4. Stagger animate the 4 HUD corners in scale
-      animate(".hud-corner", 
-        { scale: [0.8, 1], opacity: [0, 1] }, 
-        { duration: 0.8, ease: "backOut", delay: 0.4 }
-      );
-
-      updateTelemetry("soldier");
     }
 
-    // ─── 8. INTERACTIVE STAGE CONTROL ─────────────────────────────────────────────
-    document.getElementById("btn-orange").addEventListener("click", (e) => {
-      document.querySelectorAll(".btn-group .btn").forEach(b => b.classList.remove("active"));
-      e.target.classList.add("active");
-      animate(lightOrange, { intensity: 7 }, { duration: 0.5 });
-      animate(lightCyan, { intensity: 4 }, { duration: 0.5 });
+    // Direct scroll-linked telemetry mapping
+    scroll((progress) => {
+      // Maps scroll progression to section index (0, 1, or 2)
+      const sectionCount = 3;
+      const index = Math.min(Math.floor(progress * sectionCount), sectionCount - 1);
+      
+      if (index !== activeSection) {
+        activeSection = index;
+        updateActiveDot(index);
+
+        // Switch active model visibility states
+        if (soldierModel) soldierModel.visible = (index === 0);
+        ps5Group.visible = (index === 1);
+        if (girlModel) girlModel.visible = (index === 2);
+
+        // Update HUD Telemetry overlay readings
+        const names = ["SOLDIER", "PS5 CONSOLE", "FUTURISTIC GIRL"];
+        document.getElementById("hud-model").textContent = names[index];
+        
+        // Trigger quick camera lens spotlight flash on switch
+        animate(lightKey, { intensity: [18, 7.5] }, { duration: 0.5 });
+      }
+
+      // Linear zoom progression mapped on scroll y
+      const zoomVal = 7.5 - progress * 1.5;
+      camera.position.z = zoomVal;
+      document.getElementById("hud-zoom").textContent = zoomVal.toFixed(2);
     });
 
-    document.getElementById("btn-cyan").addEventListener("click", (e) => {
-      document.querySelectorAll(".btn-group .btn").forEach(b => b.classList.remove("active"));
-      e.target.classList.add("active");
-      animate(lightOrange, { intensity: 2 }, { duration: 0.5 });
-      animate(lightCyan, { intensity: 8 }, { duration: 0.5 });
+    // Tap navigator controls
+    dots.forEach((dot, idx) => {
+      dot.addEventListener("click", () => {
+        const targetSection = document.getElementById(`section-${idx}`);
+        targetSection.scrollIntoView({ behavior: "smooth" });
+      });
     });
 
     // 0-LAG CSS Custom Properties 3D Hover Tilt for Bento Spec Cards
@@ -822,15 +655,12 @@
       });
     });
 
-    // Orbit mouse follow parameters
+    // Orbit mouse follow variables
     let mouseX = 0, mouseY = 0;
     let smoothX = 0, smoothY = 0;
     document.addEventListener("mousemove", e => {
       mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
       mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-      
-      // Update Live Vector Target readout in HUD
-      document.getElementById("hud-vector").textContent = `X: ${mouseX.toFixed(2)} / Y: ${mouseY.toFixed(2)}`;
     });
 
     // Resize handler
@@ -840,7 +670,7 @@
       camera.updateProjectionMatrix();
     });
 
-    // ─── 9. WebGL RENDER ANIMATION TIMELINE ─────────────────────────────────────────
+    // ─── 5. WebGL RENDER ANIMATION TIMELINE ─────────────────────────────────────────
     const clock = new THREE.Clock();
 
     function renderLoop() {
@@ -854,17 +684,17 @@
 
       // Update Active Model States
       let currentRotationY = 0;
-      if (activeModelKey === "soldier" && soldierModel) {
+      if (activeSection === 0 && soldierModel) {
         soldierModel.rotation.y = t * 0.2 + smoothX;
         soldierModel.rotation.x = smoothY;
         currentRotationY = soldierModel.rotation.y;
       } 
-      else if (activeModelKey === "ps5") {
+      else if (activeSection === 1) {
         ps5Group.rotation.y = t * 0.25 + smoothX;
         ps5Group.rotation.x = 0.2 + smoothY;
         currentRotationY = ps5Group.rotation.y;
       } 
-      else if (activeModelKey === "girl" && girlModel) {
+      else if (activeSection === 2 && girlModel) {
         girlModel.rotation.y = t * 0.2 + smoothX;
         girlModel.rotation.x = smoothY;
         currentRotationY = girlModel.rotation.y;
@@ -875,8 +705,8 @@
       document.getElementById("hud-rotation").textContent = `${rotationDeg.toFixed(2)}°`;
 
       // Orbit spotlight details
-      lightOrange.position.x = 5 + Math.cos(t * 0.4) * 2;
-      lightOrange.position.z = 5 + Math.sin(t * 0.4) * 2;
+      lightKey.position.x = 5 + Math.cos(t * 0.4) * 2;
+      lightKey.position.z = 5 + Math.sin(t * 0.4) * 2;
 
       renderer.render(scene, camera);
     }
