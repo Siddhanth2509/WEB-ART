@@ -66,6 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // ─── 5. THREE.JS PREMIUM 3D HERO ─────────────────────────────────────────────
+  /**
+   * Initializes the Three.js WebGL scene for the Hero Section.
+   * Renders a premium, interactive Torus Knot mesh with metallic PBR shading,
+   * multiple animated point lights, dual-spin wireframe overlays, a floating
+   * particle halo, smooth mouse tracking (cinematic lag), drag inertia physics,
+   * and scroll-triggered perspective transformations (scale down and camera drift).
+   */
   (function initScene() {
     if (typeof THREE === 'undefined') return;
 
@@ -238,6 +245,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Render loop ───────────────────────────────────────────────────────────
     const clock = new THREE.Clock();
 
+    /**
+     * Continuous WebGL animation render loop executed on requestAnimationFrame.
+     * Computes smooth interpolation (lerping) for mouse offsets, decays drag momentum,
+     * updates primary and wireframe rotations, maps scroll percentage to transform scales,
+     * and cycles light positions.
+     */
     function animate() {
       requestAnimationFrame(animate);
       const t  = clock.getElapsedTime();
