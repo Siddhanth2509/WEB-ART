@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Framer Motion / Motion v11 Vanilla Showcase</title>
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #050505;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --card-border: rgba(255, 255, 255, 0.06);
+      --neon-orange: #ff4c00;
+      --neon-cyan: #00e5ff;
+      --text: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.5);
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      min-height: 250vh; /* space to test scroll animations */
+      padding: 80px 20px;
+    }
+
+    /* Ambient background glows */
+    .glow-bg {
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      pointer-events: none;
+      filter: blur(100px);
+      z-index: -1;
+      opacity: 0.15;
+    }
+    .glow-orange {
+      top: -100px;
+      right: -100px;
+      background: var(--neon-orange);
+    }
+    .glow-cyan {
+      bottom: -100px;
+      left: -100px;
+      background: var(--neon-cyan);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Grid of interactive test items */
+    .test-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      margin-bottom: 120px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      cursor: grab;
+      user-select: none;
+    }
+
+    .card:active {
+      cursor: grabbing;
+    }
+
+    .card-badge {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 6px 12px;
+      border-radius: 100px;
+      background: rgba(255, 255, 255, 0.05);
+      margin-bottom: 24px;
+    }
+
+    .card-orange .card-badge {
+      color: var(--neon-orange);
+      background: rgba(255, 76, 0, 0.1);
+    }
+
+    .card-cyan .card-badge {
+      color: var(--neon-cyan);
+      background: rgba(0, 229, 255, 0.1);
+    }
+
+    h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Scroll section visualizer */
+    .scroll-section {
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 80px 40px;
+      text-align: center;
+      margin-top: 100px;
+      position: relative;
+    }
+
+    .scroll-box {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, var(--neon-orange), var(--neon-cyan));
+      border-radius: 24px;
+      margin: 40px auto;
+      box-shadow: 0 10px 30px rgba(255, 76, 0, 0.3);
+    }
+
+    .scroll-bar-indicator {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: var(--neon-orange);
+      transform-origin: left;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Page Scroll Indicator -->
+  <div class="scroll-bar-indicator" id="scroll-bar"></div>
+
+  <!-- Ambient Glow Background -->
+  <div class="glow-bg glow-orange"></div>
+  <div class="glow-bg glow-cyan"></div>
+
+  <div class="container">
+    <header>
+      <h1 id="headline">Motion v11 Sandbox</h1>
+      <p>Interactive testing sandbox showcasing physics-based springs, gesture triggers, layout changes, and parallax variables.</p>
+    </header>
+
+    <main>
+      <div class="test-grid">
+        
+        <!-- CARD 1: Spring Gesture Drag -->
+        <div class="card card-orange" id="card-drag">
+          <div class="card-badge">Gesture Physics</div>
+          <h3>Spring Drag & Return</h3>
+          <p>Click, grab, and throw this card. It uses a high-stiffness spring parameter to snap back to its original grid index with rubber-band inertia.</p>
+        </div>
+
+        <!-- CARD 2: Hover Scale & Brightness -->
+        <div class="card card-cyan" id="card-hover">
+          <div class="card-badge">Hover Trigger</div>
+          <h3>Reactive Hover Depth</h3>
+          <p>Hover over this card to trigger a spring scale transition and brightness highlight. Employs modern compositor-friendly GPU properties.</p>
+        </div>
+
+      </div>
+
+      <!-- Scroll Reveal Showcase -->
+      <div class="scroll-section" id="scroll-trigger-section">
+        <div class="card-badge">Scroll Sync</div>
+        <h3>Scroll-Driven Rotator</h3>
+        <p>Scroll down the page. The container below will rotate and scale proportionally based on your scroll progression.</p>
+        <div class="scroll-box" id="scroll-box"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Import modern Motion library from CDN -->
+  <script type="module">
+    import { animate, scroll } from "https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm";
+
+    // 1. Title Entrance Animation (Staggered Characters or simple Fade Slide)
+    animate("#headline", 
+      { y: [20, 0], opacity: [0, 1] }, 
+      { duration: 0.8, ease: "easeOut" }
+    );
+
+    // 2. Drag & Snap Physics (Card 1)
+    const dragCard = document.getElementById("card-drag");
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let currentX = 0, currentY = 0;
+
+    dragCard.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      startX = e.clientX - currentX;
+      startY = e.clientY - currentY;
+      animate(dragCard, { scale: 0.96 }, { duration: 0.2 });
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      currentX = e.clientX - startX;
+      currentY = e.clientY - startY;
+      // Offset position manually on frame updates
+      dragCard.style.transform = `translate3d(${currentX}px, ${currentY}px, 0) scale(0.96)`;
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (!isDragging) return;
+      isDragging = false;
+      // Spring return to origin
+      currentX = 0;
+      currentY = 0;
+      animate(dragCard, 
+        { x: 0, y: 0, scale: 1 }, 
+        { type: "spring", stiffness: 220, damping: 16 }
+      );
+    });
+
+    // 3. Spring Hover States (Card 2)
+    const hoverCard = document.getElementById("card-hover");
+    hoverCard.addEventListener("mouseenter", () => {
+      animate(hoverCard, 
+        { scale: 1.04, borderColor: "rgba(0, 229, 255, 0.4)" }, 
+        { type: "spring", stiffness: 300, damping: 18 }
+      );
+    });
+    hoverCard.addEventListener("mouseleave", () => {
+      animate(hoverCard, 
+        { scale: 1, borderColor: "rgba(255, 255, 255, 0.06)" }, 
+        { type: "spring", stiffness: 200, damping: 20 }
+      );
+    });
+
+    // 4. Scroll-Linked Progress Bar (Top of Page)
+    scroll((info) => {
+      // Maps scroll fraction directly to progress bar scale
+      const bar = document.getElementById("scroll-bar");
+      bar.style.transform = `scaleX(${info.y.progress})`;
+    });
+
+    // 5. Scroll-Triggered Parallax Element (Scale/Rotate 3D box)
+    scroll(
+      (info) => {
+        const box = document.getElementById("scroll-box");
+        // Map progress to rotation angle (0 to 360 deg) and scale (1 to 1.5)
+        const rotation = info.y.progress * 360;
+        const scale = 1 + info.y.progress * 0.5;
+        box.style.transform = `rotate(${rotation}deg) scale(${scale})`;
+      },
+      {
+        target: document.getElementById("scroll-trigger-section"),
+        offset: ["start end", "end start"] // animates while section moves through viewport
+      }
+    );
+
+  </script>
+</body>
+</html>
